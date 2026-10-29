@@ -1,5 +1,6 @@
-import { authStorage } from './authStorage';
 import { API_BASE_URL } from '../config/api';
+import { API_ENDPOINTS } from './endpoints';
+import { authStorage } from './authStorage';
 
 type ApiErrorBody = {
   message?: string;
@@ -51,19 +52,19 @@ export type ProfileResponse = {
 
 export const authApi = {
   register: (input: { name: string; email: string; password: string }) =>
-    request<RegisterResponse>('/users/register', {
+    request<RegisterResponse>(API_ENDPOINTS.auth.register, {
       method: 'POST',
       body: JSON.stringify(input),
     }),
 
   login: (input: { email: string; password: string }) =>
-    request<LoginResponse>('/users/login', {
+    request<LoginResponse>(API_ENDPOINTS.auth.login, {
       method: 'POST',
       body: JSON.stringify(input),
     }),
 
   getProfile: (token: string) =>
-    request<ProfileResponse>('/users/me', {
+    request<ProfileResponse>(API_ENDPOINTS.auth.profile, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -109,25 +110,26 @@ async function authenticatedRequest<T>(
 export const courseApi = {
   enroll: (courseId: string) =>
     authenticatedRequest<{ message: string; enrollment: Enrollment }>(
-      `/courses/${courseId}/enroll`,
+      API_ENDPOINTS.courses.enroll(courseId),
       { method: 'POST' },
     ),
 
   getEnrollmentStatus: (courseId: string) =>
     authenticatedRequest<EnrollmentStatusResponse>(
-      `/courses/${courseId}/enrollment`,
+      API_ENDPOINTS.courses.enrollmentStatus(courseId),
     ),
 
   getMyEnrollments: () =>
-    authenticatedRequest<MyEnrollmentsResponse>('/courses/enrolled'),
+    authenticatedRequest<MyEnrollmentsResponse>(API_ENDPOINTS.courses.enrolled),
 
-  // Add these methods inside your existing courseApi object:
   getLessons: (courseId: string) =>
-    authenticatedRequest<CourseLessonsResponse>(`/courses/${courseId}/lessons`),
+    authenticatedRequest<CourseLessonsResponse>(
+      API_ENDPOINTS.courses.lessons(courseId),
+    ),
 
   completeLesson: (courseId: string, lessonId: string) =>
     authenticatedRequest<CompleteLessonResponse>(
-      `/courses/${courseId}/lessons/${lessonId}/complete`,
+      API_ENDPOINTS.courses.completeLesson(courseId, lessonId),
       { method: 'PATCH' },
     ),
 };
