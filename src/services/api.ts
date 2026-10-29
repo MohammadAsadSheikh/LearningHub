@@ -1,10 +1,5 @@
-import { Platform } from "react-native";
-import { authStorage } from "./authStorage";
-const API_BASE_URL = Platform.select({
-  ios: "http://localhost:3000",
-  android: "http://10.0.2.2:3000",
-  default: "http://localhost:3000",
-});
+import { authStorage } from './authStorage';
+import { API_BASE_URL } from '../config/api';
 
 type ApiErrorBody = {
   message?: string;
@@ -15,7 +10,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       ...options.headers,
     },
   });
@@ -56,19 +51,19 @@ export type ProfileResponse = {
 
 export const authApi = {
   register: (input: { name: string; email: string; password: string }) =>
-    request<RegisterResponse>("/users/register", {
-      method: "POST",
+    request<RegisterResponse>('/users/register', {
+      method: 'POST',
       body: JSON.stringify(input),
     }),
 
   login: (input: { email: string; password: string }) =>
-    request<LoginResponse>("/users/login", {
-      method: "POST",
+    request<LoginResponse>('/users/login', {
+      method: 'POST',
       body: JSON.stringify(input),
     }),
 
   getProfile: (token: string) =>
-    request<ProfileResponse>("/users/me", {
+    request<ProfileResponse>('/users/me', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -99,7 +94,7 @@ async function authenticatedRequest<T>(
   const token = await authStorage.getToken();
 
   if (!token) {
-    throw new Error("Please log in again.");
+    throw new Error('Please log in again.');
   }
 
   return request<T>(path, {
@@ -115,7 +110,7 @@ export const courseApi = {
   enroll: (courseId: string) =>
     authenticatedRequest<{ message: string; enrollment: Enrollment }>(
       `/courses/${courseId}/enroll`,
-      { method: "POST" },
+      { method: 'POST' },
     ),
 
   getEnrollmentStatus: (courseId: string) =>
@@ -124,7 +119,7 @@ export const courseApi = {
     ),
 
   getMyEnrollments: () =>
-    authenticatedRequest<MyEnrollmentsResponse>("/courses/enrolled"),
+    authenticatedRequest<MyEnrollmentsResponse>('/courses/enrolled'),
 
   // Add these methods inside your existing courseApi object:
   getLessons: (courseId: string) =>
@@ -133,7 +128,7 @@ export const courseApi = {
   completeLesson: (courseId: string, lessonId: string) =>
     authenticatedRequest<CompleteLessonResponse>(
       `/courses/${courseId}/lessons/${lessonId}/complete`,
-      { method: "PATCH" },
+      { method: 'PATCH' },
     ),
 };
 
